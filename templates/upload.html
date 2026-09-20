@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Resume - AI-Powered Resume Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('index') }}" class="brand-logo">
+        <div class="brand-icon">AI</div>
+        <span>ResumeAnalyzer</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+        <li><a href="{{ url_for('jobs_page') }}" class="nav-link">Jobs</a></li>
+        <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
+        <li><a href="{{ url_for('upload') }}" class="nav-link active">Upload Resume</a></li>
+        <li><a href="{{ url_for('profile') }}" class="nav-link">Profile</a></li>
+        <li><span class="nav-user">Hi, {{ session.get('user_name') }}</span></li>
+        <li><a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Flash Alerts -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="alert-container">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main Upload Area -->
+  <main class="main-content">
+    <div class="page-header" style="text-align: center;">
+      <h1 class="page-title">Upload Your Resume</h1>
+      <p class="page-subtitle">Upload a PDF resume to extract skills and match against job descriptions</p>
+    </div>
+
+    <div style="max-width: 600px; margin: 0 auto;">
+      <div class="card">
+        <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+          
+          <!-- Dropzone -->
+          <div class="upload-box" id="uploadDropzone" onclick="document.getElementById('resumeFileInput').click();">
+            <div class="upload-icon">📁</div>
+            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Click or Drag & Drop PDF Resume</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Maximum file size: 5 MB (PDF format only)</p>
+            <input type="file" id="resumeFileInput" name="resume" accept=".pdf" style="display: none;" required>
+          </div>
+
+          <!-- File details display -->
+          <div id="selectedFileDetails" style="display: none; padding: 0.75rem 1rem; background: var(--success-bg); border: 1px solid #a7f3d0; border-radius: var(--radius-md); margin-bottom: 1.5rem; text-align: center;">
+            <span style="color: #065f46; font-weight: 600;" id="selectedFileName">No file selected</span>
+          </div>
+
+          <!-- Target Role Selection -->
+          <div class="form-group" style="margin-top: 1.5rem;">
+            <label for="target_role_select" class="form-label">Select Target Job Role</label>
+            <select id="target_role_select" name="target_role_select" class="form-select" required>
+              <option value="Python Developer" selected>Python Developer</option>
+              <option value="Full Stack Developer">Full Stack Developer</option>
+              <option value="Backend Developer">Backend Developer</option>
+              <option value="Frontend Developer">Frontend Developer</option>
+              <option value="Software Developer">Software Developer</option>
+              <option value="Data Analyst">Data Analyst</option>
+              <option value="Data Scientist">Data Scientist</option>
+              <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+              <option value="Web Developer">Web Developer</option>
+              <option value="Java Developer">Java Developer</option>
+              <option value="DevOps Engineer">DevOps Engineer</option>
+              <option value="Custom Role">Custom Role...</option>
+            </select>
+          </div>
+
+          <!-- Custom Role Input (Hidden by default) -->
+          <div class="form-group" id="custom_role_group" style="display: none;">
+            <label for="custom_target_role" class="form-label">Enter Custom Target Job Role</label>
+            <input type="text" id="custom_target_role" name="custom_target_role" class="form-control" placeholder="e.g. Cloud Security Architect">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.5rem;">
+            🚀 Start AI Analysis & Job Matching
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="nav-container">
+      <p>&copy; 2026 AI-Powered Resume Analyzer & Job Recommendation System. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

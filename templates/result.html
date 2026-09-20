@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analysis Result - AI-Powered Resume Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('index') }}" class="brand-logo">
+        <div class="brand-icon">AI</div>
+        <span>ResumeAnalyzer</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+        <li><a href="{{ url_for('jobs_page') }}" class="nav-link">Jobs</a></li>
+        <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
+        <li><a href="{{ url_for('upload') }}" class="nav-link">Upload Resume</a></li>
+        <li><a href="{{ url_for('profile') }}" class="nav-link">Profile</a></li>
+        <li><span class="nav-user">Hi, {{ session.get('user_name') }}</span></li>
+        <li><a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Flash Alerts -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="alert-container">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main Analysis Report Container -->
+  <main class="main-content">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 class="page-title">Resume Analysis Result</h1>
+        <p class="page-subtitle">Detailed skill breakdown and target role alignment report</p>
+      </div>
+      <div>
+        <a href="{{ url_for('upload') }}" class="btn btn-secondary">Upload New Resume</a>
+      </div>
+    </div>
+
+    <!-- Match Summary Hero Card -->
+    <div class="card" style="background: var(--gradient-soft); border: 1.5px solid rgba(139, 92, 246, 0.2); margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+          <span style="font-size: 0.9rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.05em;">Target Job Role</span>
+          <h2 style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;">{{ analysis.target_role }}</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem;">Analysis performed on {{ analysis.analysis_date }}</p>
+        </div>
+
+        <div style="text-align: right; min-width: 220px;">
+          <div style="font-size: 2.8rem; font-weight: 900; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            {{ analysis.match_percentage }}%
+          </div>
+          <div style="font-weight: 700; color: var(--text-muted); font-size: 0.9rem;">Overall Job Match</div>
+          <div class="progress-container" style="margin-top: 0.5rem;">
+            <div class="progress-bar" style="width: {{ analysis.match_percentage }}%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skill Breakdown Sections -->
+    <div class="grid grid-3" style="margin-bottom: 2.5rem;">
+      <!-- All Detected Skills -->
+      <div class="card">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem;">
+          🔍 Extracted Skills ({{ detected_skills|length }})
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">All technical skills parsed directly from your uploaded resume PDF.</p>
+        <div class="skills-list">
+          {% for skill in detected_skills %}
+            <span class="badge badge-purple">{{ skill }}</span>
+          {% else %}
+            <span style="color: var(--text-muted); font-size: 0.85rem;">No technical skills detected.</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Matched Skills -->
+      <div class="card">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--success); margin-bottom: 1rem;">
+          ✅ Matched Skills ({{ matched_skills|length }})
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Required skills for {{ analysis.target_role }} found in your resume.</p>
+        <div class="skills-list">
+          {% for skill in matched_skills %}
+            <span class="badge badge-success">{{ skill }}</span>
+          {% else %}
+            <span style="color: var(--text-muted); font-size: 0.85rem;">None matched yet.</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Missing Skills -->
+      <div class="card">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--danger); margin-bottom: 1rem;">
+          ⚠️ Missing Skills ({{ missing_skills|length }})
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Skills recommended to boost your profile for {{ analysis.target_role }}.</p>
+        <div class="skills-list">
+          {% for skill in missing_skills %}
+            <span class="badge badge-danger">{{ skill }}</span>
+          {% else %}
+            <span class="badge badge-success">No missing skills! Excellent match!</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommended Jobs Section -->
+    <section>
+      <div class="page-header" style="margin-top: 3rem;">
+        <h2 class="page-title">Recommended Suitable Jobs</h2>
+        <p class="page-subtitle">Handpicked job openings ranked by matching score for your profile</p>
+      </div>
+
+      <div class="grid grid-3">
+        {% for job in recommended_jobs %}
+          <div class="card job-card">
+            <div>
+              <div class="job-header">
+                <div>
+                  <h3 class="job-title">{{ job.title }}</h3>
+                  <div class="job-company">{{ job.company }}</div>
+                </div>
+                <span class="badge badge-purple" style="font-size: 0.9rem;">{{ job.match_score }}% Match</span>
+              </div>
+
+              <div class="job-meta">
+                <span>📍 {{ job.location }}</span>
+                <span>💰 {{ job.salary }}</span>
+              </div>
+
+              <p class="job-description">{{ job.description }}</p>
+
+              <div style="margin-bottom: 1rem;">
+                <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);">Required Skills:</span>
+                <div class="skills-list" style="margin-top: 0.3rem;">
+                  {% for s in job.skills.split(',') %}
+                    {% if s.strip() %}
+                      <span class="badge badge-info">{{ s.strip() }}</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <a href="{{ url_for('jobs_page') }}?q={{ job.title }}" class="btn btn-secondary btn-block btn-sm">View Details</a>
+            </div>
+          </div>
+        {% else %}
+          <p style="color: var(--text-muted);">No matching job listings found.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="nav-container">
+      <p>&copy; 2026 AI-Powered Resume Analyzer & Job Recommendation System. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
