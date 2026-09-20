@@ -21,8 +21,8 @@ app.secret_key = 'super_secret_ai_resume_analyzer_key_2026'
 
 # Configuration Constants
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE_PATH = os.path.join(BASE_DIR, 'database.db')
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+DATABASE_PATH = os.path.join('/tmp', 'database.db')
+UPLOAD_FOLDER = os.path.join('/tmp', 'uploads')
 DATA_CSV_PATH = os.path.join(BASE_DIR, 'data', 'jobs.csv')
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB limit
 ALLOWED_EXTENSIONS = {'pdf'}
